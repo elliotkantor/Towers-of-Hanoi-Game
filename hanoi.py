@@ -20,7 +20,7 @@ def initBoard(numDisks):
     pegStack = [i for i in range(1, numDisks+1)]
     startingPeg = random.randint(0,2)
     board[startingPeg] = pegStack
-    return board
+    return board, startingPeg
 
 def clearScreen():
     from os import system, name
@@ -93,6 +93,16 @@ def askInput(brd):
 
     return newBoard
 
+def solve(numDisks, start, end, alt, board):
+    global moves
+
+    if numDisks > 0:
+        solve(numDisks-1, start, alt, end, board)
+        print(f"({moves+1}) Moved from peg {start+1} to peg {end+1}.")
+        moves += 1
+        solve(numDisks-1, alt, end, start, board)
+
+
 # game loop
 while True:
     clearScreen()
@@ -101,31 +111,30 @@ while True:
         showInstructions()
     numDisks = pyip.inputInt(prompt="How many disks would you like? ", min=2, max=10)
 
-    board = initBoard(numDisks)  # make a new random board
+    board, startingPeg = initBoard(numDisks)  # make a new random board
     moves = 0
-    while True:
-        printBoard(board)  # show game board
-        board = askInput(board)  # ask for user input with input validation
-        if str(board).strip() == '':
-            break
-        else:
-            moves += 1
+
+    playOrWatch = pyip.inputChoice(['play', 'watch'])
+    if playOrWatch == 'watch':
+        possibleLocations = [0, 1, 2]
+        possibleLocations.remove(startingPeg)
+        endPeg = random.choice(possibleLocations)
+        possibleLocations.remove(endPeg)
+        altPeg = possibleLocations[0]
+
+        solve(numDisks, startingPeg, endPeg, altPeg, board)
+    else:
+        while True:
+            printBoard(board)  # show game board
+            board = askInput(board)  # ask for user input with input validation
+            if str(board).strip() == '':
+                break
+            else:
+                moves += 1
     
-    clearScreen()
+    # clearScreen()
     showStats()
     playAgain = pyip.inputYesNo(prompt="Would you like to play again? (y/n) ")
     if playAgain == 'no':
         print("Thanks for playing!")
         break
-
-def solve(numDisks, start, end, alt, board):
-    if numDisks == 0:
-        print("Solved!")
-        return
-        
-    solve(numDisks-1, start, end, alt, board)
-
-    board = moveDisk(board, start, end)
-    print(f"Moved from {start} to {end}.")
-
-    solve(numDisks-1, start, end, alt, board)
