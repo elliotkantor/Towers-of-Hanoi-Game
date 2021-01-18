@@ -63,7 +63,7 @@ def showStats():
 
 def askInput(brd):
     while True:
-        
+
         startPeg = pyip.inputInt(prompt="Which peg would you like to move from? (1-3) ", blank=True, min=1, max=3)
         if str(startPeg).strip() == '':
             newBoard = ''
@@ -117,3 +117,15 @@ while True:
     if playAgain == 'no':
         print("Thanks for playing!")
         break
+
+def solve(numDisks, start, end, alt, board):
+    if numDisks == 0:
+        print("Solved!")
+        return
+        
+    solve(numDisks-1, start, end, alt, board)
+
+    board = moveDisk(board, start, end)
+    print(f"Moved from {start} to {end}.")
+
+    solve(numDisks-1, start, end, alt, board)
